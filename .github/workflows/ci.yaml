@@ -14,7 +14,7 @@ jobs:
   test:
     name: "PHP ${{ matrix.env.php }} - Symfony ${{ matrix.env.symfony }}"
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.env.experimental == true }}
+    continue-on-error: false
     strategy:
       fail-fast: false
       matrix:
@@ -26,16 +26,14 @@ jobs:
           - { php: 8.1, symfony: 6.4 }
           - { php: 8.2, symfony: 6.4 }
           - { php: 8.3, symfony: 6.4 }
-          - { php: 8.4, symfony: 6.4, experimental: true }
-          - { php: 8.2, symfony: 7.1, experimental: true }
-          - { php: 8.3, symfony: 7.1, experimental: true }
-          - { php: 8.4, symfony: 7.1, experimental: true }
+          - { php: 8.2, symfony: 7.0 }
+          - { php: 8.3, symfony: 7.0 }
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Composer cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: "vendor"
           key: ${{ runner.os }}-${{ matrix.env.php }}-composer-${{ hashFiles('composer.json') }}
@@ -61,19 +59,19 @@ jobs:
         run: vendor/bin/phpunit \
           --configuration phpunit.xml.dist \
           --coverage-php "coverage/test.${{ matrix.env.php }}.${{ matrix.env.symfony }}.cov"
-  
+
       - name: upload coverage file
         if: "${{github.event_name}} == 'pull_request'"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: coverage
+          name: coverage-${{ matrix.env.php }}-${{ matrix.env.symfony }}
           path: "coverage/test.${{ matrix.env.php }}.${{ matrix.env.symfony }}.cov"
 
       - name: upload composer.lock on fail
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: "composer.php-${{ matrix.env.php }}.symfony-${{ matrix.env.symfony }}"
+          name: "composer-lock-${{ matrix.env.php }}-${{ matrix.env.symfony }}"
           path: |
             composer.json
             composer.lock
@@ -83,12 +81,13 @@ jobs:
     runs-on: ubuntu-latest
     if: "${{ github.event_name }} == 'pull_request'"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v5
         with:
-          name: coverage
+          pattern: coverage-*
           path: coverage
+          merge-multiple: true
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
