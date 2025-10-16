@@ -8,7 +8,7 @@ updates:
     target-branch: develop
     labels:
       - dependencies
-      groups:
-        symfony:
-          patterns:
-            - "symfony/*"
+    groups:
+      symfony:
+        patterns:
+          - "symfony/*"
