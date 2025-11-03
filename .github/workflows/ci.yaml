@@ -106,7 +106,7 @@ jobs:
         run: vendor/bin/phpcov merge --clover coverage/clover.xml ./coverage
 
       - name: 'Generate code coverage summary report'
-        uses: saschanowak/CloverCodeCoverageSummary@0.4.0
+        uses: saschanowak/CloverCodeCoverageSummary@1.1.1
         with:
           filename: coverage/clover.xml
 
