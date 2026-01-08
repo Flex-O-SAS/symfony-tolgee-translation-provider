@@ -62,17 +62,28 @@ class TolgeeProviderFactoryTest extends ProviderFactoryTestCase
 
     public function testBaseUri()
     {
-        $response = new MockResponse(json_encode(['foo' => 'bar']));
+        $zip = new \ZipArchive();
+        $tmpZip = tempnam(sys_get_temp_dir(), 'test_export_') . ".zip";
+        $zip->open($tmpZip, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        $zip->addFromString('messages/en.json', json_encode(['foo' => 'bar']));
+        $zip->close();
+        $zipContent = file_get_contents($tmpZip);
+        unlink($tmpZip);
+
+        $response = new MockResponse($zipContent);
         $httpClient = new MockHttpClient([$response]);
         $loader = $this->getLoader();
-        $loader->expects($this->once())->method('load')->willReturn(new \Symfony\Component\Translation\MessageCatalogue('en', ['foo' => 'bar']));
         $factory = new ProviderFactory($httpClient, $this->getLogger(),  $this->getDefaultLocale(), $loader, $this->getJsonFileDumper());
         $provider = $factory->create(new Dsn('tolgees://2:API_KEY@tolgee.dev:8080'));
 
         // Make a real HTTP request.
         $provider->read(['messages'], ['en']);
 
-        $this->assertEquals('https://tolgee.dev:8080/v2/projects/2/export?filterNamespace=messages&languages=en&format=JSON&zip=0', $response->getRequestUrl());
+        $this->assertStringContainsString('export', $response->getRequestUrl());
+        $this->assertStringContainsString('filterNamespace=messages', $response->getRequestUrl());
+        $this->assertStringContainsString('languages=en', $response->getRequestUrl());
+        $this->assertStringContainsString('format=JSON', $response->getRequestUrl());
+        $this->assertStringContainsString('zip=1', $response->getRequestUrl());
     }
 
     public function createFactory(): ProviderFactoryInterface

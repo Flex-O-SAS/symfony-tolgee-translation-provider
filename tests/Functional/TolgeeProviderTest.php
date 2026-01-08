@@ -58,11 +58,7 @@ class TolgeeProviderTest extends KernelTestCase
                 $query = $options['query'];
                 $filterNamespace = $query['filterNamespace'];
                 $languages = $query['languages'];
-                $data = HttpClientFixture::getData(
-                    $fixture,
-                    join('.', ['export', $filterNamespace, $languages]),
-                    $method
-                );
+                $data = HttpClientFixture::getExportZip($fixture, $filterNamespace, $languages);
             }
 
             return new MockResponse($data ?? '');
