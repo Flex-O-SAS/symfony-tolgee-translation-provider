@@ -1,6 +1,8 @@
 /composer.lock
 /vendor
 
+/node_modules
+
 /coverage
 /tests/App/var
 /tests/App/translations
