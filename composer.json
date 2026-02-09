@@ -1,6 +1,7 @@
 {
     "name": "netlogix/symfony-tolgee-translation-provider",
     "description": "Symfony Tolgee Translation Provider Bridge",
+    "version": "2.0.0",
     "homepage": "https://github.com/netlogix/symfony-tolgee-translation-provider",
     "support":{
       "source": "https://github.com/netlogix/symfony-tolgee-translation-provider/",
