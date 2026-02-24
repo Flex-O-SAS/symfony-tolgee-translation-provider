@@ -13,27 +13,24 @@ use Symfony\Component\Translation\Provider\ProviderInterface;
 use Symfony\Component\Translation\Test\ProviderTestCase;
 use Symfony\Component\Translation\TranslatorBag;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Netlogix\SymfonyTolgeeTranslationProvider\TolgeeProvider;
-use Symfony\Component\Translation\Loader\JsonFileLoader;
 
 class TolgeeProviderTest extends ProviderTestCase
 {
-    /**
-     * @return LoaderInterface|MockObject
-     */
     protected function getLoader(): LoaderInterface
     {
-        return $this->loader ?? $this->loader = $this->createMock(JsonFileLoader::class);
+        return $this->loader ?? $this->loader = new ArrayLoader();
     }
 
-    public static function createProvider($client, LoaderInterface $loader, LoggerInterface $logger, string $defaultLocale, string $endpoint): ProviderInterface
+    public static function createProvider(HttpClientInterface $client, LoaderInterface $loader, LoggerInterface $logger, string $defaultLocale, string $endpoint): ProviderInterface
     {
         return new TolgeeProvider($client, $loader, $logger, $defaultLocale, $endpoint);
     }
 
     public static  function toStringProvider(): iterable
     {
-        $loader = new JsonFileLoader();
+        $loader = new ArrayLoader();
         yield 'app.tolgee.io' => [
             self::createProvider(
                 self::getHttpClient(),
