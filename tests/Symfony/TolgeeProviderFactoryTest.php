@@ -7,19 +7,13 @@ namespace Netlogix\SymfonyTolgeeTranslationProvider\Test\Symfony;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Netlogix\SymfonyTolgeeTranslationProvider\TolgeeProviderFactory as ProviderFactory;
-use Symfony\Component\Translation\Dumper\JsonFileDumper;
-use Symfony\Component\Translation\Loader\JsonFileLoader;
+use Symfony\Component\Translation\Loader\ArrayLoader;
 use Symfony\Component\Translation\Provider\Dsn;
 use Symfony\Component\Translation\Provider\ProviderFactoryInterface;
 use Symfony\Component\Translation\Test\ProviderFactoryTestCase;
 
 class TolgeeProviderFactoryTest extends ProviderFactoryTestCase
 {
-    /**
-     * @var JsonFileDumper
-     */
-    protected $jsonFileDumper;
-
     public static function supportsProvider(): iterable
     {
         yield "http" => [true, 'tolgee://1:API_KEY@tolgee.dev'];
@@ -73,7 +67,7 @@ class TolgeeProviderFactoryTest extends ProviderFactoryTestCase
         $response = new MockResponse($zipContent);
         $httpClient = new MockHttpClient([$response]);
         $loader = $this->getLoader();
-        $factory = new ProviderFactory($httpClient, $this->getLogger(),  $this->getDefaultLocale(), $loader, $this->getJsonFileDumper());
+        $factory = new ProviderFactory($httpClient, $this->getLogger(),  $this->getDefaultLocale(), $loader);
         $provider = $factory->create(new Dsn('tolgees://2:API_KEY@tolgee.dev:8080'));
 
         // Make a real HTTP request.
@@ -88,16 +82,11 @@ class TolgeeProviderFactoryTest extends ProviderFactoryTestCase
 
     public function createFactory(): ProviderFactoryInterface
     {
-        return new ProviderFactory($this->getClient(), $this->getLogger(), $this->getDefaultLocale(), $this->getLoader(), $this->getJsonFileDumper());
+        return new ProviderFactory($this->getClient(), $this->getLogger(), $this->getDefaultLocale(), $this->getLoader());
     }
 
-    protected function getLoader(): JsonFileLoader
+    protected function getLoader(): ArrayLoader
     {
-        return $this->loader ?? $this->loader = $this->createMock(JsonFileLoader::class);
-    }
-
-    protected function getJsonFileDumper(): JsonFileDumper
-    {
-        return $this->jsonFileDumper ?? $this->jsonFileDumper = $this->createMock(JsonFileDumper::class);
+        return $this->loader ?? $this->loader = new ArrayLoader();
     }
 }
