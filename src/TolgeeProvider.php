@@ -483,13 +483,8 @@ class TolgeeProvider implements ProviderInterface
             $map[$name] = $content;
         }
 
-        try {
-            $zip->close();
-        } catch(\Exception $e) {
-            ;
-        } finally {
-            unlink($zipFile);
-        }
+        $zip->close();
+        unlink($zipFile);
 
         return $map;
     }
